@@ -92,11 +92,21 @@ def _slot(p, addr):
     while e in p.mem and p.mem[e] == 0:            e += 1   # NUL/pad run
     return e - addr
 
-def apply_brand(p):
-    """Overwrite BRAND strings in place, each NUL-padded to fill its slot. Returns
-    (list of (addr,end) ranges changed, list of (addr,old,new) for reporting)."""
+# PIN generator routine (fills r6 with 4 random ASCII digits). See SCOPE/pairing R-E.
+PIN_SITE   = 0x6934
+DEFAULT_PIN = "1234"
+# HMI string slots that label the passkey (overwritten to show the hardcoded PIN).
+PIN_LABEL_SLOTS = (0x4E2C, 0x4E61)
+
+def apply_brand(p, pin=None):
+    """Overwrite BRAND strings in place, each NUL-padded to fill its slot. When a fixed
+    `pin` is set, the 'Enter passkey' slots show it. Returns (ranges, report)."""
+    brand = list(BRAND)
+    if pin:
+        label = f"USE PIN {pin}"
+        brand = [(a, label if a in PIN_LABEL_SLOTS else s) for a, s in brand]
     ranges, report = [], []
-    for addr, new in BRAND:
+    for addr, new in brand:
         slot = _slot(p, addr)
         nb = new.encode("ascii")
         if len(nb) + 1 > slot:
@@ -143,6 +153,33 @@ def tool(name):
         return found
     sys.exit(f"ERROR: {name} not found in {TOOLCHAIN} or PATH (set --toolchain/$V850_BIN)")
 
+def assemble_snippet(asm, org):
+    """Assemble a tiny V850 asm string linked at `org`; return its raw bytes."""
+    as_, ld, oc = tool("v850-elf-as"), tool("v850-elf-ld"), tool("v850-elf-objcopy")
+    td = tempfile.mkdtemp(prefix="sppsnip_")
+    s, obj, elf, binf = (os.path.join(td, x) for x in ("s.s", "s.o", "s.elf", "s.bin"))
+    open(s, "w").write(".text\n.global _s\n_s:\n" + asm + "\n")
+    subprocess.run([as_, "-mv850e", "-o", obj, s], check=True)
+    subprocess.run([ld, f"-Ttext={org:#x}", "-e", "_s", "-o", elf, obj], check=True)
+    subprocess.run([oc, "-O", "binary", elf, binf], check=True)
+    return open(binf, "rb").read()
+
+def apply_pin(p, pin):
+    """Hardcode the 4-digit Bluetooth pairing PIN by replacing the host PIN generator at
+    PIN_SITE (0x6934, r6 = dest buffer) with 'write these 4 ASCII digits, return'. The
+    original is a ~188-byte PRNG routine with a single caller, so the small replacement
+    fits and nothing branches into it mid-body. Returns (start, end)."""
+    if not (len(pin) == 4 and pin.isdigit()):
+        sys.exit(f"ABORT pin: {pin!r} must be exactly 4 digits")
+    asm = "\n".join(f"mov {ord(c)}, r10\nst.b r10, {i}[r6]" for i, c in enumerate(pin)) + "\njmp [lp]"
+    code = assemble_snippet(asm, PIN_SITE)
+    # footprint guard: must stay well inside the original routine (next fn well past here)
+    if len(code) > 0x80:
+        sys.exit(f"ABORT pin: patch {len(code)} bytes too large for the routine footprint")
+    for i, b in enumerate(code):
+        p.mem[PIN_SITE + i] = b
+    return (PIN_SITE, PIN_SITE + len(code))
+
 def assemble_shim():
     """Assemble + link spp_can_bridge.s at SHIM_ORG; return (bytes, {sym:addr})."""
     as_, ld, oc, nm = tool("v850-elf-as"), tool("v850-elf-ld"), \
@@ -164,13 +201,14 @@ def assemble_shim():
     return shim, syms, elf
 
 # ---- build --------------------------------------------------------------------
-def build(src_phf, out_phf, arm=False, brand=True):
+def build(src_phf, out_phf, arm=False, brand=True, pin=DEFAULT_PIN):
     assert selftest(), "V850 encoder self-test failed -- refusing to build"
     shim, syms, elf = assemble_shim()
     p = PHF(src_phf)
     p.add_region(SHIM_ORG, shim)
 
-    brand_ranges, brand_report = (apply_brand(p) if brand else ([], []))
+    pin_range = apply_pin(p, pin) if pin else None
+    brand_ranges, brand_report = (apply_brand(p, pin) if brand else ([], []))
 
     hooks = []
     if arm:
@@ -188,7 +226,7 @@ def build(src_phf, out_phf, arm=False, brand=True):
             hooks.append((name, site, displaced.hex(), sym, tgt, enc.hex()))
 
     fs = p.write(out_phf)
-    return fs, len(shim), syms, hooks, elf, brand_ranges, brand_report
+    return fs, len(shim), syms, hooks, elf, brand_ranges, brand_report, pin_range
 
 # ---- verification -------------------------------------------------------------
 def phf2bin(phf, out):
@@ -196,17 +234,19 @@ def phf2bin(phf, out):
                    capture_output=True)
     return open(out, "rb").read()
 
-def verify(orig_phf, new_phf, shim_len, hooks, brand_ranges=()):
+def verify(orig_phf, new_phf, shim_len, hooks, brand_ranges=(), pin_range=None):
     td = tempfile.mkdtemp(prefix="sppverify_")
     a = phf2bin(orig_phf, os.path.join(td, "a.bin"))
     b = phf2bin(new_phf,  os.path.join(td, "b.bin"))
     diffs = [i for i in range(min(len(a), len(b))) if a[i] != b[i]]
-    # expected changed set: shim region + 4 bytes per armed hook + rebranded strings
+    # expected changed set: shim region + 4 bytes per armed hook + rebranded strings + PIN patch
     expected = set(range(SHIM_ORG, SHIM_ORG + shim_len))
     for _, site, _, _, _, _ in hooks:
         expected |= set(range(site, site + 4))
     for s, e in brand_ranges:
         expected |= set(range(s, e))
+    if pin_range:
+        expected |= set(range(pin_range[0], pin_range[1]))
     unexpected = [d for d in diffs if d not in expected]
     # objdump each armed hook site in the NEW image and confirm the jump target
     od = tool("v850-elf-objdump")
@@ -227,23 +267,28 @@ if __name__ == '__main__':
     ap.add_argument('--src', default=os.path.join(REPO, "bpm", "8R29-14D511-AB.PHF"))
     ap.add_argument('--arm', action='store_true', help='install detour hooks (default off)')
     ap.add_argument('--no-brand', action='store_true', help='keep stock HMI strings (default: rebrand)')
+    ap.add_argument('--pin', default=DEFAULT_PIN, help=f'hardcode the 4-digit BT pairing PIN (default {DEFAULT_PIN})')
+    ap.add_argument('--random-pin', action='store_true', help='keep the stock per-session random PIN')
     ap.add_argument('--toolchain', help='dir containing v850-elf-* (else $V850_BIN)')
     ap.add_argument('-o', '--out', default=os.path.join(REPO, "bpm", "8R29-14D511-JL-SPPCAN.PHF"))
     args = ap.parse_args()
     if args.toolchain:
         TOOLCHAIN = args.toolchain
+    pin = None if args.random_pin else args.pin
 
-    fs, shim_len, syms, hooks, elf, brand_ranges, brand_report = build(
-        args.src, args.out, arm=args.arm, brand=not args.no_brand)
+    fs, shim_len, syms, hooks, elf, brand_ranges, brand_report, pin_range = build(
+        args.src, args.out, arm=args.arm, brand=not args.no_brand, pin=pin)
     print(f"self-test: PASS")
     print(f"shim: {shim_len} bytes @ {SHIM_ORG:#x} (ends {SHIM_ORG+shim_len:#x}, free to {FREE_END:#x})")
     print(f"wrote {args.out}   FILE CHECKSUM=0x{fs:04X}   hooks armed: {len(hooks)}   strings rebranded: {len(brand_report)}")
+    if pin_range:
+        print(f"  PIN  @ {PIN_SITE:#07x}: hardcoded pairing PIN = {pin} (generator replaced, {pin_range[1]-pin_range[0]} bytes)")
     for name, site, orig, sym, tgt, enc in hooks:
         print(f"  hook {name:<14} @ {site:#07x}: {orig} -> {enc}  ({sym} @ {tgt:#x})")
     for addr, old, new in brand_report:
         print(f"  str  @ {addr:#07x}: {old!r:<24} -> {new!r}")
 
-    la, lb, diffs, unexpected, hook_ok = verify(args.src, args.out, shim_len, hooks, brand_ranges)
+    la, lb, diffs, unexpected, hook_ok = verify(args.src, args.out, shim_len, hooks, brand_ranges, pin_range)
     span = f"{min(diffs):#x}..{max(diffs):#x}" if diffs else "none"
     print(f"verify: orig={la}B new={lb}B  changed bytes: {len(diffs)} ({span})")
     if unexpected:
