@@ -16,11 +16,11 @@ Full design, verified primitives, and the bench-validation checklist are in
 ## Build
 
 ```bash
-# SAFE — shim present in free flash, hooks NOT armed -> behaviourally identical to stock:
-python "bpm/Bluetooth Serial CAN/patch/build_spp_can_phf.py" -o bpm/8R29-14D511-JL-SPPCAN-SAFE.PHF
+# the flashable firmware — four hooks armed + HMI strings rebranded (bench-validate before flashing):
+python "bpm/Bluetooth Serial CAN/patch/build_spp_can_phf.py" --arm -o bpm/8R29-14D511-JL-SPPCAN.PHF
 
-# ARMED — four hooks spliced in (bench-validate before flashing):
-python "bpm/Bluetooth Serial CAN/patch/build_spp_can_phf.py" --arm -o bpm/8R29-14D511-JL-SPPCAN-ARMED.PHF
+# optional dormant variant (shim present, no hooks -> behaviourally stock): drop --arm
+# optional stock HMI strings instead of the rebrand: add --no-brand
 ```
 
 The builder runs the V850 cross-toolchain itself (`v850-elf-as/ld/objcopy/nm` under
@@ -34,11 +34,13 @@ The builder runs the V850 cross-toolchain itself (`v850-elf-as/ld/objcopy/nm` un
 - after emit, it `phf2bin`s old+new and confirms **only** the shim region and the armed hook
   sites changed, then `objdump`s each hook to confirm the jump/target.
 
-Current result — both builds report `verify: PASS`:
+- the HMI strings are rebranded in place, each validated to fit its flash slot (NUL-padded, no
+  spill into the neighbouring string).
+
+Current result — `verify: PASS`:
 
 ```
-SAFE : 1180-byte shim @0x1EB68, 0 hooks, FILE CHECKSUM 0x2F40
-ARMED: + 4 hooks (0x17C7A,0xF77E,0xEE66,0x12BFA), FILE CHECKSUM 0x3493
+8R29-14D511-JL-SPPCAN.PHF : 1180-byte shim @0x1EB68, 4 hooks, 29 strings rebranded, FILE CHECKSUM 0x2118
 ```
 
 ## The four hooks (see BRIDGE-SPEC §4)

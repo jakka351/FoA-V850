@@ -1,9 +1,9 @@
 # BPM SPP⇄CAN modified firmware — what it does & how it works
 
 **Base:** FG Falcon Bluetooth Phone Module (BPM), `8R29-14D511-AB`, Renesas V850ES, MS-CAN ID `0x781`
-**Builds:**
-- `8R29-14D511-JL-SPPCAN-SAFE.PHF` — shim present in free flash, **hooks not armed** → behaves exactly like stock
-- `8R29-14D511-JL-SPPCAN-ARMED.PHF` — four detour hooks spliced in → the live bridge
+**Flashable firmware:** `8R29-14D511-JL-SPPCAN.PHF` — four detour hooks armed + HMI strings
+rebranded (the live bridge). The builder can also emit a dormant/stock-string variant via flags
+(see `patch/`); the only other PHF kept in `bpm/` is the untouched stock image `8R29-14D511-AB.PHF`.
 
 **Authoritative spec:** [`BRIDGE-SPEC.md`](BRIDGE-SPEC.md) (verified primitives, RAM map, bench checklist).
 

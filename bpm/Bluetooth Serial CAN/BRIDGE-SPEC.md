@@ -92,18 +92,19 @@ call, and `tramp_drain` preserves the stock routine’s return state across the 
 ## 5. Build & verify
 
 ```bash
-# SAFE (shim dormant in free flash, no hooks — behaviourally identical to stock):
-python "bpm/Bluetooth Serial CAN/patch/build_spp_can_phf.py" -o bpm/8R29-14D511-JL-SPPCAN-SAFE.PHF
-# ARMED (hooks spliced in):
-python "bpm/Bluetooth Serial CAN/patch/build_spp_can_phf.py" --arm -o bpm/8R29-14D511-JL-SPPCAN-ARMED.PHF
+# the flashable firmware — armed hooks + rebranded HMI strings:
+python "bpm/Bluetooth Serial CAN/patch/build_spp_can_phf.py" --arm -o bpm/8R29-14D511-JL-SPPCAN.PHF
+# optional dormant variant (shim present, no hooks -> behaviourally stock): drop --arm
+# optional stock HMI strings: add --no-brand
 ```
 
 The builder assembles the shim with `v850-elf-as/ld` (at `C:/SysGCC/v850-elf/bin`, or
-`--toolchain`/`$V850_BIN`), reads its symbol map, arms the hooks, recomputes the PHF checksums,
-then **verifies**: round-trips through `phf2bin`, confirms *only* the shim region + armed hook
-bytes changed, and `objdump`s each hook site to confirm the jump target. Both builds currently
-report **verify: PASS** (SAFE: 1180-byte shim, checksum `0x2F40`; ARMED: +4 hook sites,
-checksum `0x3493`; injected bytes confirmed byte-identical to the assembled shim).
+`--toolchain`/`$V850_BIN`), reads its symbol map, arms the hooks, rebrands the HMI strings in
+place (length-checked), recomputes the PHF checksums, then **verifies**: round-trips through
+`phf2bin`, confirms *only* the shim region + armed hook sites + rebranded string bytes changed,
+and `objdump`s each hook site to confirm the jump target. The shipped **`8R29-14D511-JL-SPPCAN.PHF`**
+(armed + branded, 1180-byte shim, FILE CHECKSUM `0x2118`) reports **verify: PASS**, with the
+injected bytes confirmed byte-identical to the assembled shim.
 
 ### Adversarial review (applied)
 A 4-dimension review + per-finding verification (8 agents) found one confirmed defect and one

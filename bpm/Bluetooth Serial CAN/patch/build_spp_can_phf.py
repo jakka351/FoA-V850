@@ -47,6 +47,70 @@ HOOKS = [
     ("mainloop_drain", 0x12BFA, bytes.fromhex("80ff1a31"), "tramp_drain",   "jarl"),
 ]
 
+# ---- HMI string rebrand: (flash addr, replacement) ---------------------------
+# The BPM paints these labels on the FDIM. We overwrite them IN PLACE to show the
+# bridge identity. Each replacement is validated to fit its original slot (the
+# string's bytes + the run of NULs up to the next string) so nothing spills into
+# the neighbouring string; the rest of the slot is NUL-padded. All are display-only
+# labels (loaded into r7 and handed to the FDIM formatter), never compared in logic.
+BRAND = [
+    (0x4E08, "INTERFACE VIA CAN"),       # was "PAIR A NEW PHONE"
+    (0x4E1A, "BTSPP-CAN ACTIVE"),        # was "Bluetooth active"
+    (0x4E2C, "ENTER PIN CODE"),          # was "Enter passkey"
+    (0x4E3D, "INTERFACE VIA CAN"),
+    (0x4E4F, "BTSPP-CAN ACTIVE"),
+    (0x4E61, "ENTER PIN CODE"),
+    (0x4E70, "INTERFACE VIA CAN"),
+    (0x4E84, "Serial CAN Port Opened"),  # was "Paired successfully"
+    (0x4E9B, "INTERFACE VIA CAN"),
+    (0x4EDA, "INTERFACE VIA CAN"),
+    (0x4F13, "INTERFACE VIA CAN"),
+    (0x4F4F, "INTERFACE VIA CAN"),
+    (0x4F61, "CAN PORT BUSY"),           # was "Bluetooth busy"
+    (0x4F98, "Opening CAN port"),        # was "Connecting..."
+    (0x5120, "CAN PORT DOWN"),           # was "Disconnected" (x6)
+    (0x512E, "CAN PORT DOWN"),
+    (0x5157, "CAN PORT DOWN"),
+    (0x5165, "CAN PORT DOWN"),
+    (0x5189, "CAN PORT DOWN"),
+    (0x5197, "CAN PORT DOWN"),
+    (0x5204, "CAN LIVE!"),               # was "Connected"
+    (0x520F, "BTSPP-CAN ONLINE"),        # was "Connected"
+    (0x575E, "BTSPP-CAN IDLE"),          # was "No Phone Paired"
+    (0x576F, "Pair to open CAN bridge"), # was "Please pair a new phone"
+    (0x5788, "Pair to open CAN bridge"),
+    (0x57A3, "SPPCAN BRIDGE"),           # was "BPM VERSION:"
+    (0x57B1, "SW MOD: JAKKA351"),        # was "S/W: Adam Brown"  (mod author)
+    (0x57C2, "SW MOD: JAKKA351"),
+    (0x57D3, "TESTERPRESENT 3E"),        # was "H/W: Mustafa Mustafa"  (UDS 0x3E easter egg)
+]
+
+def _slot(p, addr):
+    """Bytes available at addr = the string's chars + the NUL run up to the next string."""
+    e = addr
+    while e in p.mem and 0x20 <= p.mem[e] < 0x7F: e += 1   # original chars
+    while e in p.mem and p.mem[e] == 0:            e += 1   # NUL/pad run
+    return e - addr
+
+def apply_brand(p):
+    """Overwrite BRAND strings in place, each NUL-padded to fill its slot. Returns
+    (list of (addr,end) ranges changed, list of (addr,old,new) for reporting)."""
+    ranges, report = [], []
+    for addr, new in BRAND:
+        slot = _slot(p, addr)
+        nb = new.encode("ascii")
+        if len(nb) + 1 > slot:
+            sys.exit(f"ABORT brand @ {addr:#x}: {new!r} needs {len(nb)+1} bytes "
+                     f"but slot is only {slot}")
+        old = ""
+        o = addr
+        while o in p.mem and 0x20 <= p.mem[o] < 0x7F:
+            old += chr(p.mem[o]); o += 1
+        p.patch(addr, nb + b"\x00" * (slot - len(nb)))   # new + NUL pad, no spill
+        ranges.append((addr, addr + slot))
+        report.append((addr, old, new))
+    return ranges, report
+
 # ---- V850 branch encoder (Format V disp22) -----------------------------------
 def enc_jr(pc, target, reg2=0):
     """JR disp22 (reg2=0) / JARL disp22,reg2 -> 4 bytes, little-endian halfwords."""
@@ -100,11 +164,13 @@ def assemble_shim():
     return shim, syms, elf
 
 # ---- build --------------------------------------------------------------------
-def build(src_phf, out_phf, arm=False):
+def build(src_phf, out_phf, arm=False, brand=True):
     assert selftest(), "V850 encoder self-test failed -- refusing to build"
     shim, syms, elf = assemble_shim()
     p = PHF(src_phf)
     p.add_region(SHIM_ORG, shim)
+
+    brand_ranges, brand_report = (apply_brand(p) if brand else ([], []))
 
     hooks = []
     if arm:
@@ -122,7 +188,7 @@ def build(src_phf, out_phf, arm=False):
             hooks.append((name, site, displaced.hex(), sym, tgt, enc.hex()))
 
     fs = p.write(out_phf)
-    return fs, len(shim), syms, hooks, elf
+    return fs, len(shim), syms, hooks, elf, brand_ranges, brand_report
 
 # ---- verification -------------------------------------------------------------
 def phf2bin(phf, out):
@@ -130,15 +196,17 @@ def phf2bin(phf, out):
                    capture_output=True)
     return open(out, "rb").read()
 
-def verify(orig_phf, new_phf, shim_len, hooks):
+def verify(orig_phf, new_phf, shim_len, hooks, brand_ranges=()):
     td = tempfile.mkdtemp(prefix="sppverify_")
     a = phf2bin(orig_phf, os.path.join(td, "a.bin"))
     b = phf2bin(new_phf,  os.path.join(td, "b.bin"))
     diffs = [i for i in range(min(len(a), len(b))) if a[i] != b[i]]
-    # expected changed set: shim region + 4 bytes per armed hook
+    # expected changed set: shim region + 4 bytes per armed hook + rebranded strings
     expected = set(range(SHIM_ORG, SHIM_ORG + shim_len))
     for _, site, _, _, _, _ in hooks:
         expected |= set(range(site, site + 4))
+    for s, e in brand_ranges:
+        expected |= set(range(s, e))
     unexpected = [d for d in diffs if d not in expected]
     # objdump each armed hook site in the NEW image and confirm the jump target
     od = tool("v850-elf-objdump")
@@ -158,20 +226,24 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--src', default=os.path.join(REPO, "bpm", "8R29-14D511-AB.PHF"))
     ap.add_argument('--arm', action='store_true', help='install detour hooks (default off)')
+    ap.add_argument('--no-brand', action='store_true', help='keep stock HMI strings (default: rebrand)')
     ap.add_argument('--toolchain', help='dir containing v850-elf-* (else $V850_BIN)')
     ap.add_argument('-o', '--out', default=os.path.join(REPO, "bpm", "8R29-14D511-JL-SPPCAN.PHF"))
     args = ap.parse_args()
     if args.toolchain:
         TOOLCHAIN = args.toolchain
 
-    fs, shim_len, syms, hooks, elf = build(args.src, args.out, arm=args.arm)
+    fs, shim_len, syms, hooks, elf, brand_ranges, brand_report = build(
+        args.src, args.out, arm=args.arm, brand=not args.no_brand)
     print(f"self-test: PASS")
     print(f"shim: {shim_len} bytes @ {SHIM_ORG:#x} (ends {SHIM_ORG+shim_len:#x}, free to {FREE_END:#x})")
-    print(f"wrote {args.out}   FILE CHECKSUM=0x{fs:04X}   hooks armed: {len(hooks)}")
+    print(f"wrote {args.out}   FILE CHECKSUM=0x{fs:04X}   hooks armed: {len(hooks)}   strings rebranded: {len(brand_report)}")
     for name, site, orig, sym, tgt, enc in hooks:
         print(f"  hook {name:<14} @ {site:#07x}: {orig} -> {enc}  ({sym} @ {tgt:#x})")
+    for addr, old, new in brand_report:
+        print(f"  str  @ {addr:#07x}: {old!r:<24} -> {new!r}")
 
-    la, lb, diffs, unexpected, hook_ok = verify(args.src, args.out, shim_len, hooks)
+    la, lb, diffs, unexpected, hook_ok = verify(args.src, args.out, shim_len, hooks, brand_ranges)
     span = f"{min(diffs):#x}..{max(diffs):#x}" if diffs else "none"
     print(f"verify: orig={la}B new={lb}B  changed bytes: {len(diffs)} ({span})")
     if unexpected:
