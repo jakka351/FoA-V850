@@ -36,29 +36,32 @@ PIN @ 0x6934: generator replaced -> fixed PIN = 1234   (dash now shows "USE PIN 
 Enter **1234** on the phone when it prompts. Change it with `--pin 0000` etc. (any 4 digits).
 `verify: PASS` — only the 42-byte routine body changed, inside its own footprint.
 
-## 3. Entry (discoverable) — the remaining piece
+## 3. Entry (discoverable) — SOLVED (auto-discoverable-at-boot)
 
-With the PIN fixed, the only thing left is making the module **discoverable** without the dash:
+Implemented as a 5th detour hook. The module's "No Phone Paired" one-shot (`0x142C2`,
+`set1 6,-0x6E46[gp]`) is spliced so that the first time the firmware decides no phone is paired —
+fully booted, baseband up — it runs the **exact same sequence the FDIM "PAIR A NEW PHONE" menu does**
+(`0xDAFE–0xDB30`): precondition `0x1936C` → setup `0x1900C` → set PIN `0x6934` → send PIN `0x68C8` →
+become discoverable `0x6858` (60-second window). It fires **once** (the stock one-shot guard), only
+when no phone is paired, so an already-paired module is unaffected. Armed with `--arm` unless
+`--no-auto-pair`.
 
-- **First, a bench check (cheapest):** many BT basebands advertise/are connectable at power-on until
-  a phone is bonded. If this one does, headless pairing already works now — power the module with no
-  paired phone, scan from the phone, pair with `1234`. Scope `UA1TX` at boot or just try to discover
-  it. (Boot sends *no* discoverable command, but the baseband may self-advertise.)
-- **If it doesn't self-advertise → auto-discoverable patch (next step, ~1 hook):** call the host's
-  "become discoverable" wrapper (the `0x6840–0x6EC8` → `0x18F08` path the HMI uses) once at startup
-  when the paired-phone list is empty — i.e. do in firmware exactly what the FDIM "PAIR A NEW PHONE"
-  selection does. Needs the exact wrapper/opcode pinned (the R/E found the family; identifying the
-  specific discoverable opcode + a boot hook is the remaining work). I can implement this on request.
-- **Alternative (no reflash):** once *any* MS-CAN tester is on the bus it can inject the FDIM HMI
-  frame to drive the menu — but that defeats "headless," so the boot patch is preferred.
+```
+hook auto_discoverable @ 0x142C2: c437ba91 -> jr 0x1F004 (tramp_autopair)
+  tramp_autopair: replay set1, then auto_pair() = 1936C/1900C/6934/68C8/6858(60), return 0x142C6
+```
+
+So with no phone paired the module now goes discoverable by itself with PIN `1234` — no dash, no
+buttons. (If the baseband *also* self-advertises at power-on, this is simply redundant, not harmful.)
+**Bench-validate before flashing** (like all hooks): confirm the `0x1936C` precondition passes in
+this context and the baseband is ready at the one-shot point; on a recoverable module.
 
 > Note: the SPP bridge link itself can't relay the PIN to bootstrap pairing — SPP isn't connected
 > until *after* pairing. That's why hardcoding the PIN (not relaying it) is the right fix.
 
 ## 4. Headless pairing procedure (target)
 
-1. Flash `8R29-14D511-JL-SPPCAN.PHF` (armed + branded + PIN `1234`; + auto-discoverable patch once §3
-   is done, if the baseband doesn't self-advertise).
-2. Power the module with no phone paired → it becomes discoverable.
+1. Flash `8R29-14D511-JL-SPPCAN.PHF` (armed + branded + PIN `1234` + auto-discoverable).
+2. Power the module with no phone paired → it auto-enters pairing and becomes discoverable (60 s).
 3. On the phone: scan, select the module, enter **1234**.
 4. Paired → open the SPP port → the OrionMaui app (or any SPP terminal) is live on MS-CAN.

@@ -103,12 +103,12 @@ The builder assembles the shim with `v850-elf-as/ld` (at `C:/SysGCC/v850-elf/bin
 place (length-checked), recomputes the PHF checksums, then **verifies**: round-trips through
 `phf2bin`, confirms *only* the shim region + armed hook sites + rebranded string bytes changed,
 and `objdump`s each hook site to confirm the jump target. The shipped **`8R29-14D511-JL-SPPCAN.PHF`**
-(armed + branded + hardcoded pairing PIN `1234`, 1180-byte shim, FILE CHECKSUM `0x1378`) reports
+(armed with 5 hooks + branded + hardcoded pairing PIN `1234`, FILE CHECKSUM `0x54D4`) reports
 **verify: PASS**, with the injected bytes confirmed byte-identical to the assembled shim.
 
-The build also hardcodes the 4-digit Bluetooth pairing PIN (generator `0x6934` → fixed `1234`,
-`--pin`/`--random-pin`) so a screenless module can be paired — see [`PAIRING.md`](PAIRING.md) for
-the headless-pairing findings and the remaining discoverable-entry step.
+The build also makes the module **pair fully headless**: it hardcodes the 4-digit PIN (generator
+`0x6934` → fixed `1234`, `--pin`/`--random-pin`) and arms a 5th hook (`--no-auto-pair` to skip) that
+auto-enters pairing/discoverable at boot when no phone is paired — see [`PAIRING.md`](PAIRING.md).
 
 ### Adversarial review (applied)
 A 4-dimension review + per-finding verification (8 agents) found one confirmed defect and one

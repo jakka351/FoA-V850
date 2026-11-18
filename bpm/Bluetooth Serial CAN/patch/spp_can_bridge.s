@@ -479,3 +479,95 @@ tx_drain:
     br    .Ltd_loop
 .Ltd_done:
     jmp   [lp]
+
+# ==============================================================================
+#  auto-discoverable-at-boot  --  headless pairing with no FDIM
+#      Hook @0x142C2 (the "No Phone Paired" one-shot, displaces set1 6,-0x6E46[gp]).
+#      When the module first decides no phone is paired (fully booted, baseband up),
+#      replay the displaced set1 then run the SAME sequence the FDIM "PAIR A NEW
+#      PHONE" menu does (0xDAFE..0xDB30): precondition 0x1936C, setup 0x1900C,
+#      set PIN 0x6934 (hardcoded), send PIN 0x68C8, become discoverable 0x6858 (60s).
+#      Fires exactly once (the one-shot guard bit6 of gp-0x6E46). Stock fns are
+#      reached through thunks (jarl can't carry an absolute target from the shim).
+# ==============================================================================
+    .equ RET_AUTOPAIR, 0x000142C6
+    .equ F_1936C,      0x0001936C      # precondition check (r6=1 -> r10==0 means proceed)
+    .equ F_1900C,      0x0001900C      # pairing-state setup
+    .equ F_6934b,      0x00006934      # PIN generator (now writes fixed PIN)
+    .equ F_68C8,       0x000068C8      # send-PIN-to-baseband (opcode 3)
+    .equ F_6858,       0x00006858      # become-discoverable (r6 = window seconds)
+
+    .global tramp_autopair
+tramp_autopair:
+    set1  6, -0x6E46[gp]          # replay displaced one-shot guard set
+    addi  -64, sp, sp
+    st.w  r1,   0[sp]
+    st.w  r6,   4[sp]
+    st.w  r7,   8[sp]
+    st.w  r8,  12[sp]
+    st.w  r9,  16[sp]
+    st.w  r10, 20[sp]
+    st.w  r11, 24[sp]
+    st.w  r12, 28[sp]
+    st.w  r13, 32[sp]
+    st.w  r14, 36[sp]
+    st.w  r15, 40[sp]
+    st.w  r16, 44[sp]
+    st.w  r17, 48[sp]
+    st.w  r18, 52[sp]
+    st.w  r19, 56[sp]
+    st.w  lp,  60[sp]
+    jarl  auto_pair, lp
+    ld.w   0[sp], r1
+    ld.w   4[sp], r6
+    ld.w   8[sp], r7
+    ld.w  12[sp], r8
+    ld.w  16[sp], r9
+    ld.w  20[sp], r10
+    ld.w  24[sp], r11
+    ld.w  28[sp], r12
+    ld.w  32[sp], r13
+    ld.w  36[sp], r14
+    ld.w  40[sp], r15
+    ld.w  44[sp], r16
+    ld.w  48[sp], r17
+    ld.w  52[sp], r18
+    ld.w  56[sp], r19
+    ld.w  60[sp], lp
+    addi  64, sp, sp
+    mov   RET_AUTOPAIR, r1
+    jmp   [r1]
+
+auto_pair:
+    addi  -4, sp, sp
+    st.w  lp, 0[sp]
+    mov   1, r6                   # precondition: 0x1936C(1) must return 0
+    jarl  thk_1936c, lp
+    cmp   r0, r10
+    bne   .Lap_done               # not ready / already pairing -> skip
+    jarl  thk_1900c, lp           # pairing-state setup
+    movea -0x6E55, gp, r6         # PIN buffer
+    mov   4, r7
+    jarl  thk_6934, lp            # (re)write the (fixed) 4-digit PIN
+    clr1  4, -0x6E67[gp]
+    mov   4, r6
+    movea -0x6E55, gp, r7
+    jarl  thk_68c8, lp            # send PIN to the baseband
+    clr1  0, -0x6E68[gp]
+    movea 60, r0, r6              # 60-second discoverable window
+    jarl  thk_6858, lp            # become discoverable
+.Lap_done:
+    ld.w  0[sp], lp
+    addi  4, sp, sp
+    jmp   [lp]
+
+thk_1936c:  mov F_1936C, r1
+    jmp   [r1]
+thk_1900c:  mov F_1900C, r1
+    jmp   [r1]
+thk_6934:   mov F_6934b, r1
+    jmp   [r1]
+thk_68c8:   mov F_68C8, r1
+    jmp   [r1]
+thk_6858:   mov F_6858, r1
+    jmp   [r1]

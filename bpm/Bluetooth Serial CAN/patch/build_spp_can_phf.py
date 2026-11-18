@@ -47,6 +47,11 @@ HOOKS = [
     ("mainloop_drain", 0x12BFA, bytes.fromhex("80ff1a31"), "tramp_drain",   "jarl"),
 ]
 
+# Optional 5th hook: auto-discoverable-at-boot for headless pairing. Splices the
+# "No Phone Paired" one-shot (set1 6,-0x6E46[gp]) so the module enters pairing + goes
+# discoverable with no FDIM. Armed with --arm unless --no-auto-pair.
+AUTOPAIR_HOOK = ("auto_discoverable", 0x142C2, bytes.fromhex("c437ba91"), "tramp_autopair", "jr")
+
 # ---- HMI string rebrand: (flash addr, replacement) ---------------------------
 # The BPM paints these labels on the FDIM. We overwrite them IN PLACE to show the
 # bridge identity. Each replacement is validated to fit its original slot (the
@@ -137,7 +142,7 @@ def selftest():
     assert enc_jarl(0xED7E, 0xEA44) == bytes.fromhex("bfffc6fc"), "jarl enc wrong"
     assert enc_jr(0x17D96, 0x17C54) == bytes.fromhex("bf07befe"), "jr enc wrong"
     # disp must fit signed 22-bit for every hook we will install
-    for _, site, _, _, _ in HOOKS:
+    for _, site, _, _, _ in HOOKS + [AUTOPAIR_HOOK]:
         d = (SHIM_ORG - site)
         assert -0x200000 <= d <= 0x1FFFFF, f"hook at {site:#x} out of jr/jarl range"
     return True
@@ -201,7 +206,7 @@ def assemble_shim():
     return shim, syms, elf
 
 # ---- build --------------------------------------------------------------------
-def build(src_phf, out_phf, arm=False, brand=True, pin=DEFAULT_PIN):
+def build(src_phf, out_phf, arm=False, brand=True, pin=DEFAULT_PIN, auto_pair=True):
     assert selftest(), "V850 encoder self-test failed -- refusing to build"
     shim, syms, elf = assemble_shim()
     p = PHF(src_phf)
@@ -212,7 +217,8 @@ def build(src_phf, out_phf, arm=False, brand=True, pin=DEFAULT_PIN):
 
     hooks = []
     if arm:
-        for name, site, displaced, sym, kind in HOOKS:
+        hook_list = HOOKS + ([AUTOPAIR_HOOK] if auto_pair else [])
+        for name, site, displaced, sym, kind in hook_list:
             have = bytes(p.mem.get(site + i, 0xFF) for i in range(4))
             if have != displaced:
                 sys.exit(f"ABORT: hook '{name}' @ {site:#x} expected "
@@ -269,6 +275,7 @@ if __name__ == '__main__':
     ap.add_argument('--no-brand', action='store_true', help='keep stock HMI strings (default: rebrand)')
     ap.add_argument('--pin', default=DEFAULT_PIN, help=f'hardcode the 4-digit BT pairing PIN (default {DEFAULT_PIN})')
     ap.add_argument('--random-pin', action='store_true', help='keep the stock per-session random PIN')
+    ap.add_argument('--no-auto-pair', action='store_true', help='do not arm the auto-discoverable-at-boot hook')
     ap.add_argument('--toolchain', help='dir containing v850-elf-* (else $V850_BIN)')
     ap.add_argument('-o', '--out', default=os.path.join(REPO, "bpm", "8R29-14D511-JL-SPPCAN.PHF"))
     args = ap.parse_args()
@@ -277,7 +284,8 @@ if __name__ == '__main__':
     pin = None if args.random_pin else args.pin
 
     fs, shim_len, syms, hooks, elf, brand_ranges, brand_report, pin_range = build(
-        args.src, args.out, arm=args.arm, brand=not args.no_brand, pin=pin)
+        args.src, args.out, arm=args.arm, brand=not args.no_brand, pin=pin,
+        auto_pair=not args.no_auto_pair)
     print(f"self-test: PASS")
     print(f"shim: {shim_len} bytes @ {SHIM_ORG:#x} (ends {SHIM_ORG+shim_len:#x}, free to {FREE_END:#x})")
     print(f"wrote {args.out}   FILE CHECKSUM=0x{fs:04X}   hooks armed: {len(hooks)}   strings rebranded: {len(brand_report)}")
