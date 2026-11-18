@@ -1,0 +1,617 @@
+{
+ "module": "BPM (Bluetooth Phone Module)",
+ "part": "8R29-14D511-AB",
+ "production_part": "8R29-14D509-AA",
+ "can_module_id": 1921,
+ "mcu": "Renesas V850ES",
+ "image_bytes": 253704,
+ "interfaces": {
+  "bt_serial": {
+   "peripheral": "UARTA1",
+   "UA1STR": 4294965780,
+   "UA1RX": 4294965782,
+   "rx_isr": 97356,
+   "rx_ring_len": 300
+  },
+  "can": {
+   "peripheral": "aFCAN",
+   "base": 67026944,
+   "cfg_reg": 67027032,
+   "module_id": 1921,
+   "bus": "MS-CAN 125 kbit/s"
+  }
+ },
+ "vectors": [
+  {
+   "vec": 0,
+   "addr": 17664,
+   "target": 23520
+  },
+  {
+   "vec": 160,
+   "addr": 17824,
+   "target": 97356
+  },
+  {
+   "vec": 176,
+   "addr": 17840,
+   "target": 60772
+  }
+ ],
+ "can_cfg": {
+  "addr": 253696,
+  "raw": "a5051e020002e5fd",
+  "magic": 165,
+  "note": "aFCAN bit-timing/config"
+ },
+ "strings": [
+  {
+   "addr": 18432,
+   "s": "Empty"
+  },
+  {
+   "addr": 18439,
+   "s": "Unknown"
+  },
+  {
+   "addr": 18448,
+   "s": "Unknown"
+  },
+  {
+   "addr": 18457,
+   "s": "Caller ID Withheld"
+  },
+  {
+   "addr": 18477,
+   "s": "Unknown"
+  },
+  {
+   "addr": 19976,
+   "s": "PAIR A NEW PHONE"
+  },
+  {
+   "addr": 19994,
+   "s": "Bluetooth active"
+  },
+  {
+   "addr": 20012,
+   "s": "Enter passkey"
+  },
+  {
+   "addr": 20029,
+   "s": "PAIR A NEW PHONE"
+  },
+  {
+   "addr": 20047,
+   "s": "Bluetooth active"
+  },
+  {
+   "addr": 20065,
+   "s": "Enter passkey"
+  },
+  {
+   "addr": 20080,
+   "s": "PAIR A NEW PHONE"
+  },
+  {
+   "addr": 20100,
+   "s": "Paired successfully"
+  },
+  {
+   "addr": 20123,
+   "s": "PAIR A NEW PHONE"
+  },
+  {
+   "addr": 20141,
+   "s": "Phone pairing timed-out"
+  },
+  {
+   "addr": 20166,
+   "s": "Please try again"
+  },
+  {
+   "addr": 20186,
+   "s": "PAIR A NEW PHONE"
+  },
+  {
+   "addr": 20204,
+   "s": "Pairing cancelled"
+  },
+  {
+   "addr": 20223,
+   "s": "Please try again"
+  },
+  {
+   "addr": 20243,
+   "s": "PAIR A NEW PHONE"
+  },
+  {
+   "addr": 20261,
+   "s": "Pairing unsuccessful"
+  },
+  {
+   "addr": 20283,
+   "s": "Please try again"
+  },
+  {
+   "addr": 20303,
+   "s": "PAIR A NEW PHONE"
+  },
+  {
+   "addr": 20321,
+   "s": "Bluetooth busy"
+  },
+  {
+   "addr": 20337,
+   "s": "Please wait"
+  },
+  {
+   "addr": 20352,
+   "s": "CHANGE CONNECTED PHONE"
+  },
+  {
+   "addr": 20376,
+   "s": "Connecting..."
+  },
+  {
+   "addr": 20393,
+   "s": "CHANGE CONNECTED PHONE"
+  },
+  {
+   "addr": 20417,
+   "s": "Connected to"
+  },
+  {
+   "addr": 20433,
+   "s": "CHANGE CONNECTED PHONE"
+  },
+  {
+   "addr": 20457,
+   "s": "Unable to connect"
+  },
+  {
+   "addr": 20476,
+   "s": "Please try again"
+  },
+  {
+   "addr": 20496,
+   "s": "DELETE PHONE LIST"
+  },
+  {
+   "addr": 20515,
+   "s": "Press OK to delete"
+  },
+  {
+   "addr": 20539,
+   "s": "BACK to cancel"
+  },
+  {
+   "addr": 20555,
+   "s": "DELETE PHONE LIST"
+  },
+  {
+   "addr": 20576,
+   "s": "Phone list deleted"
+  },
+  {
+   "addr": 20598,
+   "s": "CHANGE CONNECTED PHONE"
+  },
+  {
+   "addr": 20630,
+   "s": "1. Empty"
+  },
+  {
+   "addr": 20648,
+   "s": "2. Empty"
+  },
+  {
+   "addr": 20666,
+   "s": "3. Empty"
+  },
+  {
+   "addr": 20684,
+   "s": "4. Empty"
+  },
+  {
+   "addr": 20702,
+   "s": "5. Empty"
+  },
+  {
+   "addr": 20720,
+   "s": "6. Empty"
+  },
+  {
+   "addr": 20738,
+   "s": "7. Empty"
+  },
+  {
+   "addr": 20756,
+   "s": "8. Empty"
+  },
+  {
+   "addr": 20768,
+   "s": "Disconnected"
+  },
+  {
+   "addr": 20782,
+   "s": "Disconnected"
+  },
+  {
+   "addr": 20796,
+   "s": "Bluetooth shutting down"
+  },
+  {
+   "addr": 20823,
+   "s": "Disconnected"
+  },
+  {
+   "addr": 20837,
+   "s": "Disconnected"
+  },
+  {
+   "addr": 20851,
+   "s": "Please check phone"
+  },
+  {
+   "addr": 20873,
+   "s": "Disconnected"
+  },
+  {
+   "addr": 20887,
+   "s": "Disconnected"
+  },
+  {
+   "addr": 20905,
+   "s": "Disconnected - low car battery"
+  },
+  {
+   "addr": 20937,
+   "s": "Disconnected - low car battery"
+  },
+  {
+   "addr": 20969,
+   "s": "Bluetooth shutting down"
+  },
+  {
+   "addr": 20996,
+   "s": "Connected"
+  },
+  {
+   "addr": 21007,
+   "s": "Connected"
+  },
+  {
+   "addr": 21024,
+   "s": "Calling..."
+  },
+  {
+   "addr": 21036,
+   "s": "Calling..."
+  },
+  {
+   "addr": 21048,
+   "s": "Hold button to end call"
+  },
+  {
+   "addr": 21073,
+   "s": "- INCOMING CALL FROM:"
+  },
+  {
+   "addr": 21096,
+   "s": "Caller ID Withheld"
+  },
+  {
+   "addr": 21116,
+   "s": "Press button to answer"
+  },
+  {
+   "addr": 21140,
+   "s": "Press button to answer"
+  },
+  {
+   "addr": 21164,
+   "s": "Hold button to reject"
+  },
+  {
+   "addr": 21187,
+   "s": "- INCOMING CALL FROM:"
+  },
+  {
+   "addr": 21210,
+   "s": "Press button to answer"
+  },
+  {
+   "addr": 21234,
+   "s": "Press button to answer"
+  },
+  {
+   "addr": 21258,
+   "s": "Hold button to reject"
+  },
+  {
+   "addr": 21283,
+   "s": "Incoming Call"
+  },
+  {
+   "addr": 21298,
+   "s": "Press button to answer"
+  },
+  {
+   "addr": 21322,
+   "s": "Press button to answer"
+  },
+  {
+   "addr": 21346,
+   "s": "Hold button to reject"
+  },
+  {
+   "addr": 21371,
+   "s": "Caller ID Withheld"
+  },
+  {
+   "addr": 21391,
+   "s": "Press button to answer"
+  },
+  {
+   "addr": 21415,
+   "s": "Press button to answer"
+  },
+  {
+   "addr": 21439,
+   "s": "Hold button to reject"
+  },
+  {
+   "addr": 21462,
+   "s": "- IN CALL WITH:"
+  },
+  {
+   "addr": 21479,
+   "s": "Press button to mute mic"
+  },
+  {
+   "addr": 21505,
+   "s": "Press button to mute mic"
+  },
+  {
+   "addr": 21531,
+   "s": "Hold button to end call"
+  },
+  {
+   "addr": 21560,
+   "s": "Press button to redial"
+  },
+  {
+   "addr": 21584,
+   "s": "Press button to redial"
+  },
+  {
+   "addr": 21608,
+   "s": "Hold button to use voice tag"
+  },
+  {
+   "addr": 21640,
+   "s": "Call Ended"
+  },
+  {
+   "addr": 21661,
+   "s": "Call Ended"
+  },
+  {
+   "addr": 21681,
+   "s": "Disconnected - check phone"
+  },
+  {
+   "addr": 21709,
+   "s": "Disconnected - check phone"
+  },
+  {
+   "addr": 21737,
+   "s": "Bluetooth shutting down"
+  },
+  {
+   "addr": 21762,
+   "s": "- IN CALL WITH (MUTED):"
+  },
+  {
+   "addr": 21787,
+   "s": "Press button to cancel mute"
+  },
+  {
+   "addr": 21816,
+   "s": "Press button to cancel mute"
+  },
+  {
+   "addr": 21845,
+   "s": "Hold button to end call"
+  },
+  {
+   "addr": 21870,
+   "s": "- IN CALL WITH (MUTED):"
+  },
+  {
+   "addr": 21895,
+   "s": "Caller ID Withheld"
+  },
+  {
+   "addr": 21915,
+   "s": "Press button to cancel mute"
+  },
+  {
+   "addr": 21944,
+   "s": "Press button to cancel mute"
+  },
+  {
+   "addr": 21973,
+   "s": "Hold button to end call"
+  },
+  {
+   "addr": 21998,
+   "s": "- IN CALL WITH:"
+  },
+  {
+   "addr": 22017,
+   "s": "Press button to swap call"
+  },
+  {
+   "addr": 22044,
+   "s": "Press button to swap call"
+  },
+  {
+   "addr": 22071,
+   "s": "Hold button to end call"
+  },
+  {
+   "addr": 22098,
+   "s": "Call Transferred"
+  },
+  {
+   "addr": 22122,
+   "s": "- IN CALL WITH:"
+  },
+  {
+   "addr": 22139,
+   "s": "Call Swapped"
+  },
+  {
+   "addr": 22153,
+   "s": "Press button to swap call"
+  },
+  {
+   "addr": 22180,
+   "s": "Press button to swap call"
+  },
+  {
+   "addr": 22207,
+   "s": "Hold button to end call"
+  },
+  {
+   "addr": 22234,
+   "s": "Call Rejected"
+  },
+  {
+   "addr": 22257,
+   "s": "Voice Tag Failed"
+  },
+  {
+   "addr": 22283,
+   "s": "Say Voice Tag"
+  },
+  {
+   "addr": 22298,
+   "s": "Voice tags must be set on"
+  },
+  {
+   "addr": 22325,
+   "s": "Voice tags must be set on"
+  },
+  {
+   "addr": 22352,
+   "s": "your phone"
+  },
+  {
+   "addr": 22366,
+   "s": "No Phone Paired"
+  },
+  {
+   "addr": 22383,
+   "s": "Please pair a new phone"
+  },
+  {
+   "addr": 22408,
+   "s": "Please pair a new phone"
+  },
+  {
+   "addr": 22435,
+   "s": "BPM VERSION:"
+  },
+  {
+   "addr": 22449,
+   "s": "S/W: Adam Brown"
+  },
+  {
+   "addr": 22466,
+   "s": "S/W: Adam Brown"
+  },
+  {
+   "addr": 22483,
+   "s": "H/W: Mustafa Mustafa"
+  },
+  {
+   "addr": 22505,
+   "s": "HEADER IN MEDIA TEXT"
+  },
+  {
+   "addr": 22527,
+   "s": "LINE 1 LINE 1 LINE 1 LINE 1"
+  },
+  {
+   "addr": 22556,
+   "s": "LINE 2 LINE 2 LINE 2 LINE 2"
+  },
+  {
+   "addr": 22585,
+   "s": "LINE 3 LINE 3 LINE 3 LINE 3"
+  },
+  {
+   "addr": 22614,
+   "s": "LINE 4 LINE 4 LINE 4 LINE 4"
+  },
+  {
+   "addr": 22643,
+   "s": "HEADER IN MENU TEXT"
+  },
+  {
+   "addr": 22664,
+   "s": "LINE 1 LINE 1 LINE 1 LINE 1"
+  },
+  {
+   "addr": 22693,
+   "s": "LINE 2 LINE 2 LINE 2 LINE 2"
+  },
+  {
+   "addr": 22722,
+   "s": "LINE 3 LINE 3 LINE 3 LINE 3"
+  },
+  {
+   "addr": 22751,
+   "s": "LINE 4 LINE 4 LINE 4 LINE 4"
+  },
+  {
+   "addr": 22780,
+   "s": "HEADER IN PAIRED PHONE LIST "
+  },
+  {
+   "addr": 22809,
+   "s": "1. ITEM 1 IN LIST"
+  },
+  {
+   "addr": 22828,
+   "s": "2. ITEM 2 IN LIST"
+  },
+  {
+   "addr": 22847,
+   "s": "3. ITEM 3 IN LIST"
+  },
+  {
+   "addr": 22866,
+   "s": "4. ITEM 4 IN LIST"
+  },
+  {
+   "addr": 22885,
+   "s": "5. ITEM 5 IN LIST"
+  },
+  {
+   "addr": 22904,
+   "s": "6. ITEM 6 IN LIST"
+  },
+  {
+   "addr": 22923,
+   "s": "7. ITEM 7 IN LIST"
+  },
+  {
+   "addr": 22942,
+   "s": "8. ITEM 8 IN LIST"
+  }
+ ]
+}

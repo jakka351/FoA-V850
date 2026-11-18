@@ -1,0 +1,446 @@
+   4800 Empty
+   4807 Unknown
+   4810 Unknown
+   4819 Caller ID Withheld
+   482d Unknown
+   4e08 PAIR A NEW PHONE
+   4e1a Bluetooth active
+   4e2c Enter passkey
+   4e3d PAIR A NEW PHONE
+   4e4f Bluetooth active
+   4e61 Enter passkey
+   4e70 PAIR A NEW PHONE
+   4e84 Paired successfully
+   4e9b PAIR A NEW PHONE
+   4ead Phone pairing timed-out
+   4ec6 Please try again
+   4eda PAIR A NEW PHONE
+   4eec Pairing cancelled
+   4eff Please try again
+   4f13 PAIR A NEW PHONE
+   4f25 Pairing unsuccessful
+   4f3b Please try again
+   4f4f PAIR A NEW PHONE
+   4f61 Bluetooth busy
+   4f71 Please wait
+   4f80 CHANGE CONNECTED PHONE
+   4f98 Connecting...
+   4fa9 CHANGE CONNECTED PHONE
+   4fc1 Connected to
+   4fd1 CHANGE CONNECTED PHONE
+   4fe9 Unable to connect
+   4ffc Please try again
+   5010 DELETE PHONE LIST
+   5023 Press OK to delete
+   503b BACK to cancel
+   504b DELETE PHONE LIST
+   5060 Phone list deleted
+   5076 CHANGE CONNECTED PHONE
+   5096 1. Empty
+   50a8 2. Empty
+   50ba 3. Empty
+   50cc 4. Empty
+   50de 5. Empty
+   50f0 6. Empty
+   5102 7. Empty
+   5114 8. Empty
+   5120 Disconnected
+   512e Disconnected
+   513c Bluetooth shutting down
+   5157 Disconnected
+   5165 Disconnected
+   5173 Please check phone
+   5189 Disconnected
+   5197 Disconnected
+   51a9 Disconnected - low car battery
+   51c9 Disconnected - low car battery
+   51e9 Bluetooth shutting down
+   5204 Connected
+   520f Connected
+   5220 Calling...
+   522c Calling...
+   5238 Hold button to end call
+   5251 - INCOMING CALL FROM:
+   5268 Caller ID Withheld
+   527c Press button to answer
+   5294 Press button to answer
+   52ac Hold button to reject
+   52c3 - INCOMING CALL FROM:
+   52da Press button to answer
+   52f2 Press button to answer
+   530a Hold button to reject
+   5323 Incoming Call
+   5332 Press button to answer
+   534a Press button to answer
+   5362 Hold button to reject
+   537b Caller ID Withheld
+   538f Press button to answer
+   53a7 Press button to answer
+   53bf Hold button to reject
+   53d6 - IN CALL WITH:
+   53e7 Press button to mute mic
+   5401 Press button to mute mic
+   541b Hold button to end call
+   5438 Press button to redial
+   5450 Press button to redial
+   5468 Hold button to use voice tag
+   5488 Call Ended
+   549d Call Ended
+   54b1 Disconnected - check phone
+   54cd Disconnected - check phone
+   54e9 Bluetooth shutting down
+   5502 - IN CALL WITH (MUTED):
+   551b Press button to cancel mute
+   5538 Press button to cancel mute
+   5555 Hold button to end call
+   556e - IN CALL WITH (MUTED):
+   5587 Caller ID Withheld
+   559b Press button to cancel mute
+   55b8 Press button to cancel mute
+   55d5 Hold button to end call
+   55ee - IN CALL WITH:
+   5601 Press button to swap call
+   561c Press button to swap call
+   5637 Hold button to end call
+   5652 Call Transferred
+   566a - IN CALL WITH:
+   567b Call Swapped
+   5689 Press button to swap call
+   56a4 Press button to swap call
+   56bf Hold button to end call
+   56da Call Rejected
+   56f1 Voice Tag Failed
+   570b Say Voice Tag
+   571a Voice tags must be set on
+   5735 Voice tags must be set on
+   5750 your phone
+   575e No Phone Paired
+   576f Please pair a new phone
+   5788 Please pair a new phone
+   57a3 BPM VERSION:
+   57b1 S/W: Adam Brown
+   57c2 S/W: Adam Brown
+   57d3 H/W: Mustafa Mustafa
+   57e9 HEADER IN MEDIA TEXT
+   57ff LINE 1 LINE 1 LINE 1 LINE 1
+   581c LINE 2 LINE 2 LINE 2 LINE 2
+   5839 LINE 3 LINE 3 LINE 3 LINE 3
+   5856 LINE 4 LINE 4 LINE 4 LINE 4
+   5873 HEADER IN MENU TEXT
+   5888 LINE 1 LINE 1 LINE 1 LINE 1
+   58a5 LINE 2 LINE 2 LINE 2 LINE 2
+   58c2 LINE 3 LINE 3 LINE 3 LINE 3
+   58df LINE 4 LINE 4 LINE 4 LINE 4
+   58fc HEADER IN PAIRED PHONE LIST 
+   5919 1. ITEM 1 IN LIST
+   592c 2. ITEM 2 IN LIST
+   593f 3. ITEM 3 IN LIST
+   5952 4. ITEM 4 IN LIST
+   5965 5. ITEM 5 IN LIST
+   5978 6. ITEM 6 IN LIST
+   598b 7. ITEM 7 IN LIST
+   599e 8. ITEM 8 IN LIST
+   5c9c AY@_
+   5cb6 Aa@g
+   5cc6 Ai@o
+   5d2f b@gV
+   5d6a AY@_
+   5fd4 AQ@W3
+   5ff4 Aa@g(
+   6002 Ai@o
+   615c AQ@W3
+   616a Aa@g
+   6178 AjDo
+   618c Aq@w3
+   6407 `$V@
+   6429 `$nU
+   64f7 h V 
+   692b XbZ*
+   69eb RDW$
+   6a17 RDW(
+   6a52 	RDW4
+   6a8f RDW8
+   6aef RDWL
+   6b1b RDWP
+   6ca1 bDgr
+   6cb3 8 Fp
+   7141 	DWD
+   71ec F	DWD
+   7bb7 RDW	
+   7bf5 RDWg
+   8253 % 6^
+   82dd b	RDW
+   863b % 6^
+   87b7 0+g	
+   8867 RDWh
+   888b bDg,
+   8ccb jDo,
+   8e07 = 6!
+   9311 `$^,
+   a41e $q 6*
+   a471 p 6.
+   a4c3 p 62
+   a514 .p 66
+   a567 o 6%
+   a641 o 6;
+   a693 n 6?
+   a6e4 ^n 6C
+   a737 n 6G
+   af51 e 6)
+   b063 RDWi
+   c263 U f/
+   c8c5 RDW*
+   c923 jDoj
+   cad8 zr n
+   cd20 Aa@g
+   cd7c Ai@o0
+   cd88 Aq@w
+   cee1 = 6U
+   cff9 XDg,
+   d025 XDg,
+   d07d % VU
+   d125 -$^,
+   d610 Ai@o3
+   d67e AY@_
+   d7a9 bDgr
+   d809 bDgm
+   d910 AQ@W
+   da21 e 6+
+   dbb3 jDom
+   dbd7 rDwm
+   dc63 jDom
+   dc7f rDwm
+   dcf9 jDom
+   dd09 rDwm
+   dd19 RDWm
+   dd91 jDom
+   dda9 rDwm
+   ddc1 RDWm
+   de43 % 6<
+   dea5 rDwq
+   def9 jDoq
+   df69 rDwq
+   e02b jDop
+   e183 jDop
+   e1a9 5	2'
+   e215 rDwp
+   e267 M 62
+   e2b1 - 61
+   e3cf jDo4
+   e493 rDw6
+   e511 rDw6
+   e79f jDo:
+   e863 rDw;
+   e973 jDo5
+   e995 U$w>
+   e9cd 5 ^2
+   ee8e Abhb
+   f2c3 `$^d
+   f2d0 Abab
+   f2d7 `$^`
+   f2e4 Abab
+   f342 0($n
+   f5ba Abhb
+   f6ad ec7	
+   f795 QdWQ
+   f7a2 Lb,o
+   fd10 AbDg
+   fd22 _ZD_
+   fdbc ARdW}
+   fdee _Zd_}
+   fe71 jDon
+   ff8b rDwm
+  1001d rDwm
+  1015b RDWn
+  1025b bDgm
+  102d7 RDWm
+  10305 RDWm
+  10358 _bDg
+  1037b RDWo
+  1066a AQdWu
+  106e4 _rdw
+  1074e _RdW
+  1085d 0-w	
+  10a50 AYd_u
+  10b6f RDW{
+  10e5f RDWL
+  10f03 E-W	
+  10f31 0 >u
+  11000 Aa@g
+  1100c Ai@o
+  11064 Ai@o
+  110a8 AQ@W
+  110d4 AQ@W
+  11108 AQ@W
+  11122 AY@_
+  11158 Aa@g
+  1120e Ai@o
+  112ec Aa@g
+  1130c Aq@w
+  113f8 Ai@o
+  1147c Ai@o
+  114d0 Aa@g
+  11645 l$6,
+  1164f l$6i
+  11737 `$^^
+  1175b k$6h
+  11765 k$6,
+  1176f k$6i
+  118a9 `$^^
+  11a66 NiKo
+  11b04 _rKw
+  11c5f X$f[
+  11e98 ARdW
+  12072 ArDw
+  12599 Yd_e
+  1299c Aq@w 
+  12bc2 Ki@o
+  12bed R@Wn
+  130a8 _bDg
+  1398c AY@_'
+  13998 Aa@g 
+  13a14 AY@_
+  13a4d %$^,
+  13ab1 u$^,
+  13bfe AqCw
+  13e58 AQ@W
+  13e66 Ai@o
+  13f10 AQ@W
+  13ff2 AQ@W
+  14027 2 >X
+  140f0 Aq@w
+  14171 % 6*
+  14225 2 >X
+  14231 2 >X
+  1439a Ai@o
+  143cf 2 >d
+  14580 Aq@w0
+  1458c AQ@W
+  147e0 Ai@o
+  14980 Ai@o
+  14e0f jDog
+  151ee Ai@o0
+  151fa Aq@w
+  1526e AQ@W
+  1568c AiDo
+  15ab5 = 6&
+  15c20 AY@_
+  15c31 r@w.
+  15c6e Aa@g.
+  15c96 Ai@o.
+  15cb0 AY@_
+  15d00 AY@_
+  15d26 Aa@gA
+  15d7a Ai@o$
+  15da2 Ai@o$
+  15dbc AY@_@
+  15e04 AY@_
+  15e5a ARdW
+  15e64 AZd_
+  15e6e Abdg
+  15e78 Ajdo
+  15e82 Ardw
+  15eb8 _RdW
+  15ec2 AZd_
+  15ecc Abdg
+  15ed6 Ajdo
+  15ee0 Ardw
+  15f1c ARdW@
+  15f26 AZd_B
+  15f30 AbdgD
+  15f3a AjdoF
+  15f44 ArdwH
+  15f80 ARdW
+  15f8a AZd_
+  15f94 Abdg
+  15f9e Ajdo
+  15fa8 Ardw
+  15fe4 ARdW"
+  15fee AZd_
+  15ff8 Abdg
+  16002 Ajdo
+  1600c Ardw
+  16123 r$^,
+  1616d 0 >(
+  163f9 `=W	
+  16661 0=W	
+  16961 QlW	
+  16b6d 0 >&
+  17102 Arhr
+  17325 Y+o	
+  17335 rAr#
+  173e9 0 >#
+  1741b 0 >"
+  175db Q*g	
+  175ef ajg	
+  1760f a,o	
+  1762b 0 >'
+  17840 Aq@w
+  1789c Ai@oR
+  178fe Ai@o
+  1790a Aq@w
+  179a2 Ai@o
+  179ae Aq@wR
+  179c4 AY@_r
+  17a5a Ai@o
+  17a66 Aq@wR
+  17a94 Ardw,
+  17b3d % V,
+  17c82 Ardw*
+  17ccc AY@_
+  17ce6 Aq@w
+  18024 *hMaFg
+  18510 AjDo
+  1866f %$f.
+  187ce AiDo\
+  18852 AiDo\
+  18ba2 	rDw
+  18fbb R$f@
+  19021 b$n@
+  191bc AjKo
+  191f7 5$^@
+  19227 %$^@
+  19389 b$n@
+  194db jdou
+  194f9 rdwu
+  195e3 Xd_q
+  1981d `,o^
+  19822 _jfo^
+  199ef X+g`
+  199f9 afg`
+  19f2d rFrdw
+  1a007 bAb$o
+  1a5e9 a|g	
+  1a607 q|w	
+  1a892 AQdW
+  1a8a0 Aido
+  1ad0e AjDo
+  1af3a AjDo
+  1b036 AjDo
+  1b1fd - 6O
+  1b3a9 `$69
+  1b4e5 2$>9
+  1bcf9 0$>4
+  1bd1d 0$>X
+  1bd41 0$>|
+  1be87 0$>4
+  1beab 0$>X
+  1becf 0$>|
+  1cc39 0$>@
+  1ce35 0$>@
+  1d183 0$>@
+  1daf5 p ~R
+  1dda1 = V@
+  1dde9 M V`
+  1e47f : n(
+  1e572 A2F?
+  1e602 +8B:
+  1e64f -#G	
+  1e778 AYDZ
+  1e94b 1#W	
+  1e9bf a*W	
+  1eb30 ___mulf.s
+  1eb3a ___divf.s
+  1eb44 ___addf.s
+  1eb4e ___subf.s
+  1eb58 ___cmpf.s

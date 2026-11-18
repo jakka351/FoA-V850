@@ -1,0 +1,384 @@
+== vector table at 0x4400 ==
+  004500 (vec 000): jr -> 005be0
+  004510 (vec 010): 07e0 0140  (not jr)
+  004520 (vec 020): 07e0 0140  (not jr)
+  004530 (vec 030): 07e0 0140  (not jr)
+  004540 (vec 040): 07e0 0140  (not jr)
+  004550 (vec 050): 07e0 0140  (not jr)
+  004560 (vec 060): 07e0 0140  (not jr)
+  004570 (vec 070): 07e0 0140  (not jr)
+  004580 (vec 080): 07e0 0140  (not jr)
+  004590 (vec 090): 07e0 0140  (not jr)
+  0045a0 (vec 0a0): jr -> 017c4c
+  0045b0 (vec 0b0): jr -> 00ed64
+  0045c0 (vec 0c0): 07e0 0140  (not jr)
+  0045d0 (vec 0d0): 07e0 0140  (not jr)
+  0045e0 (vec 0e0): 07e0 0140  (not jr)
+  0045f0 (vec 0f0): 07e0 0140  (not jr)
+  004600 (vec 100): 07e0 0140  (not jr)
+  004610 (vec 110): 07e0 0140  (not jr)
+  004620 (vec 120): 07e0 0140  (not jr)
+  004630 (vec 130): 07e0 0140  (not jr)
+  004640 (vec 140): 07e0 0140  (not jr)
+  004650 (vec 150): 07e0 0140  (not jr)
+  004660 (vec 160): 07e0 0140  (not jr)
+  004670 (vec 170): ffff ffff  (not jr)
+  004680 (vec 180): ffff ffff  (not jr)
+  004690 (vec 190): ffff ffff  (not jr)
+  0046a0 (vec 1a0): ffff ffff  (not jr)
+  0046b0 (vec 1b0): ffff ffff  (not jr)
+  0046c0 (vec 1c0): ffff ffff  (not jr)
+  0046d0 (vec 1d0): ffff ffff  (not jr)
+  0046e0 (vec 1e0): ffff ffff  (not jr)
+  0046f0 (vec 1f0): ffff ffff  (not jr)
+  004700 (vec 200): 02b5 0000  (not jr)
+  004710 (vec 210): 0002 0000  (not jr)
+  004720 (vec 220): ffff ffff  (not jr)
+  004730 (vec 230): ffff ffff  (not jr)
+  004740 (vec 240): ffff ffff  (not jr)
+  004750 (vec 250): ffff ffff  (not jr)
+  004760 (vec 260): ffff ffff  (not jr)
+  004770 (vec 270): ffff ffff  (not jr)
+  004780 (vec 280): ffff ffff  (not jr)
+  004790 (vec 290): ffff ffff  (not jr)
+  0047a0 (vec 2a0): ffff ffff  (not jr)
+  0047b0 (vec 2b0): ffff ffff  (not jr)
+  0047c0 (vec 2c0): ffff ffff  (not jr)
+  0047d0 (vec 2d0): ffff ffff  (not jr)
+  0047e0 (vec 2e0): ffff ffff  (not jr)
+  0047f0 (vec 2f0): ffff ffff  (not jr)
+  004800 (vec 300): 6d45 7470  (not jr)
+  004810 (vec 310): 6e55 6e6b  (not jr)
+  004820 (vec 320): 4449 5720  (not jr)
+  004830 (vec 330): 6f6e 6e77  (not jr)
+  004840 (vec 340): 0000 0000  (not jr)
+  004850 (vec 350): 1e24 1e24  (not jr)
+  004860 (vec 360): 0b30 0b28  (not jr)
+  004870 (vec 370): 0808 0808  (not jr)
+  004880 (vec 380): d768 03ff  (not jr)
+  004890 (vec 390): d788 03ff  (not jr)
+  0048a0 (vec 3a0): d7a8 03ff  (not jr)
+  0048b0 (vec 3b0): 2094 0001  (not jr)
+  0048c0 (vec 3c0): 7118 0001  (not jr)
+  0048d0 (vec 3d0): 713c 0001  (not jr)
+  0048e0 (vec 3e0): 0000 0000  (not jr)
+  0048f0 (vec 3f0): 0002 0000  (not jr)
+
+== printable strings (>=6) ==
+  004807: Unknown
+  004810: Unknown
+  004819: Caller ID Withheld
+  00482d: Unknown
+  004e08: PAIR A NEW PHONE
+  004e1a: Bluetooth active
+  004e2c: Enter passkey
+  004e3d: PAIR A NEW PHONE
+  004e4f: Bluetooth active
+  004e61: Enter passkey
+  004e70: PAIR A NEW PHONE
+  004e84: Paired successfully
+  004e9b: PAIR A NEW PHONE
+  004ead: Phone pairing timed-out
+  004ec6: Please try again
+  004eda: PAIR A NEW PHONE
+  004eec: Pairing cancelled
+  004eff: Please try again
+  004f13: PAIR A NEW PHONE
+  004f25: Pairing unsuccessful
+  004f3b: Please try again
+  004f4f: PAIR A NEW PHONE
+  004f61: Bluetooth busy
+  004f71: Please wait
+  004f80: CHANGE CONNECTED PHONE
+  004f98: Connecting...
+  004fa9: CHANGE CONNECTED PHONE
+  004fc1: Connected to
+  004fd1: CHANGE CONNECTED PHONE
+  004fe9: Unable to connect
+  004ffc: Please try again
+  005010: DELETE PHONE LIST
+  005023: Press OK to delete
+  00503b: BACK to cancel
+  00504b: DELETE PHONE LIST
+  005060: Phone list deleted
+  005076: CHANGE CONNECTED PHONE
+  005096: 1. Empty
+  0050a8: 2. Empty
+  0050ba: 3. Empty
+  0050cc: 4. Empty
+  0050de: 5. Empty
+  0050f0: 6. Empty
+  005102: 7. Empty
+  005114: 8. Empty
+  005120: Disconnected
+  00512e: Disconnected
+  00513c: Bluetooth shutting down
+  005157: Disconnected
+  005165: Disconnected
+  005173: Please check phone
+  005189: Disconnected
+  005197: Disconnected
+  0051a9: Disconnected - low car battery
+  0051c9: Disconnected - low car battery
+  0051e9: Bluetooth shutting down
+  005204: Connected
+  00520f: Connected
+  005220: Calling...
+  00522c: Calling...
+  005238: Hold button to end call
+  005251: - INCOMING CALL FROM:
+  005268: Caller ID Withheld
+  00527c: Press button to answer
+  005294: Press button to answer
+  0052ac: Hold button to reject
+  0052c3: - INCOMING CALL FROM:
+  0052da: Press button to answer
+  0052f2: Press button to answer
+  00530a: Hold button to reject
+  005323: Incoming Call
+  005332: Press button to answer
+  00534a: Press button to answer
+  005362: Hold button to reject
+  00537b: Caller ID Withheld
+  00538f: Press button to answer
+  0053a7: Press button to answer
+  0053bf: Hold button to reject
+  0053d6: - IN CALL WITH:
+  0053e7: Press button to mute mic
+  005401: Press button to mute mic
+  00541b: Hold button to end call
+  005438: Press button to redial
+  005450: Press button to redial
+  005468: Hold button to use voice tag
+  005488: Call Ended
+  00549d: Call Ended
+  0054b1: Disconnected - check phone
+  0054cd: Disconnected - check phone
+  0054e9: Bluetooth shutting down
+  005502: - IN CALL WITH (MUTED):
+  00551b: Press button to cancel mute
+  005538: Press button to cancel mute
+  005555: Hold button to end call
+  00556e: - IN CALL WITH (MUTED):
+  005587: Caller ID Withheld
+  00559b: Press button to cancel mute
+  0055b8: Press button to cancel mute
+  0055d5: Hold button to end call
+  0055ee: - IN CALL WITH:
+  005601: Press button to swap call
+  00561c: Press button to swap call
+  005637: Hold button to end call
+  005652: Call Transferred
+  00566a: - IN CALL WITH:
+  00567b: Call Swapped
+  005689: Press button to swap call
+  0056a4: Press button to swap call
+  0056bf: Hold button to end call
+  0056da: Call Rejected
+  0056f1: Voice Tag Failed
+  00570b: Say Voice Tag
+  00571a: Voice tags must be set on
+  005735: Voice tags must be set on
+  005750: your phone
+  00575e: No Phone Paired
+  00576f: Please pair a new phone
+  005788: Please pair a new phone
+  0057a3: BPM VERSION:
+  0057b1: S/W: Adam Brown
+  0057c2: S/W: Adam Brown
+  0057d3: H/W: Mustafa Mustafa
+  0057e9: HEADER IN MEDIA TEXT
+  0057ff: LINE 1 LINE 1 LINE 1 LINE 1
+  00581c: LINE 2 LINE 2 LINE 2 LINE 2
+  005839: LINE 3 LINE 3 LINE 3 LINE 3
+  005856: LINE 4 LINE 4 LINE 4 LINE 4
+  005873: HEADER IN MENU TEXT
+  005888: LINE 1 LINE 1 LINE 1 LINE 1
+  0058a5: LINE 2 LINE 2 LINE 2 LINE 2
+  0058c2: LINE 3 LINE 3 LINE 3 LINE 3
+  0058df: LINE 4 LINE 4 LINE 4 LINE 4
+  0058fc: HEADER IN PAIRED PHONE LIST 
+  005919: 1. ITEM 1 IN LIST
+  00592c: 2. ITEM 2 IN LIST
+  00593f: 3. ITEM 3 IN LIST
+  005952: 4. ITEM 4 IN LIST
+  005965: 5. ITEM 5 IN LIST
+  005978: 6. ITEM 6 IN LIST
+  00598b: 7. ITEM 7 IN LIST
+  00599e: 8. ITEM 8 IN LIST
+  018024: *hMaFg
+  01eb30: ___mulf.s
+  01eb3a: ___divf.s
+  01eb44: ___addf.s
+  01eb4e: ___subf.s
+  01eb58: ___cmpf.s
+
+== mov imm32, reg (top values) ==
+  0000ffff -> r7   x41
+  00009342 -> r29  x5
+  0000ffff -> r10  x5
+  0000ffff -> r11  x4
+  00009318 -> r29  x4
+  00009038 -> r29  x4
+  0000a477 -> r29  x4
+  fffcffff -> r1   x4
+  0000ffff -> r1   x3
+  0000ff00 -> r1   x3
+  03ffc000 -> r6   x3
+  03ffefff -> r7   x3
+  03fec058 -> r10  x3
+  f0ffffff -> r1   x3
+  0001d4c0 -> r1   x2
+  0000e400 -> r14  x2
+  00008213 -> r1   x2
+  0000c900 -> r1   x2
+  0000c902 -> r1   x2
+  0000c904 -> r1   x2
+  0000c906 -> r1   x2
+  0000c908 -> r1   x2
+  0000c90a -> r1   x2
+  0000d200 -> r1   x2
+  0000d202 -> r1   x2
+  0000d204 -> r1   x2
+  0000e217 -> r1   x2
+  0000e21a -> r1   x2
+  0000e300 -> r1   x2
+  0000e302 -> r1   x2
+  0000e304 -> r1   x2
+  0000e40c -> r12  x2
+  0000e402 -> r1   x2
+  0000e405 -> r1   x2
+  0000e407 -> r1   x2
+  0000e409 -> r1   x2
+  0000e40b -> r1   x2
+  0000e612 -> r12  x2
+  0000e40d -> r1   x2
+  0000e611 -> r1   x2
+  0000e6f3 -> r12  x2
+  0000e6f2 -> r1   x2
+  0000ffff -> r13  x2
+  0000c256 -> r29  x2
+  0000c184 -> r29  x2
+  3800301d -> r15  x2
+  0000a207 -> r29  x2
+  0000a900 -> r29  x2
+  00009318 -> r1   x2
+  0000a477 -> r6   x2
+  03fec058 -> r16  x2
+  0000ffff -> r17  x2
+  0000ffff -> r19  x2
+  0000490a -> r16  x2
+  00004928 -> r29  x2
+  00004aad -> r19  x2
+  00004874 -> r12  x2
+  000049a6 -> r13  x2
+  00004a90 -> r10  x2
+  9908b0df -> r1   x2
+
+== absolute [r0] accesses (disp16 sign-extended) ==
+  00000000  x10
+  000000ca  x2
+  00000700  x2
+  00003620  x2
+  00005f84  x2
+  00007468  x3
+  00007aa8  x2
+  ffff9784  x2
+  fffff008  x3
+  fffff024  x3
+  fffff025  x2
+  fffff028  x5
+  fffff02a  x3
+  fffff02c  x3
+  fffff02e  x3
+  fffff044  x3
+  fffff045  x2
+  fffff048  x3
+  fffff04a  x3
+  fffff04c  x3
+  fffff0e0  x3
+  fffff0e2  x3
+  fffff0e4  x3
+  fffff0e6  x3
+  fffff104  x4
+  fffff124  x5
+  fffff12e  x5
+  fffff152  x5
+  fffff154  x5
+  fffff1fc  x4
+  fffff200  x7
+  fffff400  x5
+  fffff407  x5
+  fffff408  x11
+  fffff40c  x30
+  fffff40e  x3
+  fffff410  x14
+  fffff413  x38
+  fffff420  x6
+  fffff422  x3
+  fffff426  x5
+  fffff427  x3
+  fffff428  x3
+  fffff42a  x3
+  fffff42c  x3
+  fffff42d  x2
+  fffff42e  x5
+  fffff42f  x3
+  fffff430  x23
+  fffff432  x7
+  fffff433  x7
+  fffff438  x3
+  fffff440  x5
+  fffff442  x3
+  fffff446  x5
+  fffff447  x2
+  fffff448  x3
+  fffff44a  x3
+  fffff44c  x3
+  fffff44d  x2
+  fffff450  x3
+  fffff452  x11
+  fffff453  x2
+  fffff472  x4
+  fffff540  x3
+  fffff541  x2
+  fffff590  x3
+  fffff591  x2
+  fffff5b0  x2
+  fffff610  x2
+  fffff6d0  x2
+  fffff712  x4
+  fffff828  x2
+  fffffa10  x28
+  fffffa11  x2
+  fffffa12  x2
+  fffffa14  x5
+  fffffa16  x4
+  fffffa17  x2
+  fffffc00  x3
+  fffffc20  x3
+  ffffffff  x2
+  distinct abs addresses: 171
+
+== movhi imm16,r0,rX (upper halves of absolute addresses) ==
+  movhi 0x0000 x23
+  movhi 0xff00 x3
+  movhi 0x0001 x2
+  movhi 0x4f00 x2
+  movhi 0x70ff x1
+  movhi 0x30ff x1
+  movhi 0x10ff x1
+  movhi 0x00ff x1
+  movhi 0x007f x1
+  movhi 0x003f x1
+  movhi 0x07bf x1
+  movhi 0x600a x1
+  movhi 0x8724 x1
+  movhi 0x2d95 x1
+  movhi 0xf1ff x1
+  movhi 0xefc6 x1
+  movhi 0x021f x1
+  movhi 0x65c5 x1
+  movhi 0x0080 x1
+  movhi 0x8000 x1
+  movhi 0x0050 x1
