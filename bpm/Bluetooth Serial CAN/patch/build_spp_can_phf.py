@@ -2,33 +2,54 @@
 """Build a patched BPM PHF carrying the SPP<->CAN bridge shim.
 
 Pipeline:
-  1. inject the assembled shim blob into free flash at 0x1EB68
-  2. (optional, --arm) install detour hooks into the UART-RX ISR and CAN-RX path
-  3. re-emit a Ford PHF with correct per-record + FILE CHECKSUM (phfpatch)
-  4. verify the result round-trips through phf2bin
+  1. assemble spp_can_bridge.s with the V850 toolchain, linked at 0x1EB68,
+     and read its symbol map (no external shim.bin / hand-kept offsets).
+  2. inject the shim into free flash at 0x1EB68.
+  3. (--arm) install four detour hooks, each verified against the exact stock
+     instruction it displaces before patching:
+        0x17C7A  st.b r13,0[r11]   -> jr   trampoline_rx     (UART-RX byte tee)
+        0xF77E   st.w r6,0[sp]      -> jr   tramp_f77e         (CAN-RX OEM-ID tee)
+        0xEE66   st.w r6,0[sp]      -> jr   tramp_ee66         (CAN-RX catch-all tee)
+        0x12BFA  jarl 0x15D14       -> jarl tramp_drain        (main-loop TX drain)
+  4. re-emit a Ford PHF with correct per-record + FILE CHECKSUM (phfpatch).
+  5. verify: round-trips through phf2bin, only the intended bytes changed, and
+     every armed hook disassembles to the right jump/target (objdump).
 
-The V850 branch encoder below is self-tested against *real* firmware instructions, so
-if it is ever used to write a hook it is provably correct — a failed self-test aborts
-the build rather than emitting a bad jump.
+Usage (from the repo root):
+    # SAFE build (shim present in free flash, hooks NOT armed -> behaviourally stock):
+    python3 "bpm/Bluetooth Serial CAN/patch/build_spp_can_phf.py" \
+            -o bpm/8R29-14D511-JL-SPPCAN.PHF
+    # ARMED build (hooks spliced in; bench-validate before flashing):
+    python3 "bpm/Bluetooth Serial CAN/patch/build_spp_can_phf.py" --arm \
+            -o bpm/8R29-14D511-JL-SPPCAN.PHF
 
-    # safe build (shim present in free flash, hooks NOT armed -> behaviourally stock):
-    python3 patch/build_spp_can_phf.py --shim shim.bin -o bpm/SW-8R29-14D511-AB-SPPCAN.PHF
-    # after you have validated the shim in the emulator, arm the hooks:
-    python3 patch/build_spp_can_phf.py --shim shim.bin --arm -o ...PHF
+The V850 branch encoder is self-tested against real firmware instructions, so a
+failed self-test aborts the build rather than emitting a bad jump.
 """
-import sys, os, struct, argparse
+import sys, os, struct, argparse, subprocess, re, shutil, tempfile
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from phfpatch import PHF
 
-SHIM_ORG   = 0x1EB68          # start of the 127,896-byte 0xFF free-flash run
-UART_RX_ISR= 0x17C4C          # [RE-VERIFIED] UARTA1 receive ISR
-CAN_EXTRACT= 0x0EE66          # [RE-VERIFIED] CAN0 RX frame extractor entry
-import pypcode
-_ctx = pypcode.Context("V850:LE:32:default")
+HERE      = os.path.dirname(os.path.abspath(__file__))
+REPO      = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))   # .../V850
+SHIM_ASM  = os.path.join(HERE, "spp_can_bridge.s")
+SHIM_ORG  = 0x1EB68          # start of the 127,896-byte 0xFF free-flash run
+FREE_END  = 0x3DF00          # aFCAN cfg block begins here
 
-# ---- V850 branch/stub encoders (Format V disp22) -----------------------------
+# default cross toolchain (override with --toolchain or $V850_BIN)
+TOOLCHAIN = os.environ.get("V850_BIN", "C:/SysGCC/v850-elf/bin")
+
+# ---- detour hook table: (name, site, displaced_instr_bytes, shim_symbol, kind) ----
+HOOKS = [
+    ("uart_rx",        0x17C7A, bytes.fromhex("4b6f0000"), "trampoline_rx", "jr"),
+    ("can_rx_f77e",    0x0F77E, bytes.fromhex("63370100"), "tramp_f77e",    "jr"),
+    ("can_rx_ee66",    0x0EE66, bytes.fromhex("63370100"), "tramp_ee66",    "jr"),
+    ("mainloop_drain", 0x12BFA, bytes.fromhex("80ff1a31"), "tramp_drain",   "jarl"),
+]
+
+# ---- V850 branch encoder (Format V disp22) -----------------------------------
 def enc_jr(pc, target, reg2=0):
-    """JR disp22 (reg2=0) / JARL disp22,reg2 — 4 bytes, little-endian halfwords."""
+    """JR disp22 (reg2=0) / JARL disp22,reg2 -> 4 bytes, little-endian halfwords."""
     disp = (target - pc) & 0x3FFFFF
     hw0 = (reg2 << 11) | (0x1E << 6) | ((disp >> 16) & 0x3F)
     hw1 = disp & 0xFFFF
@@ -37,82 +58,129 @@ def enc_jr(pc, target, reg2=0):
 def enc_jarl(pc, target):
     return enc_jr(pc, target, reg2=31)          # link in lp (r31)
 
-JMP_LP = struct.pack('<H', 0x007F)              # jmp [lp]   (verified @0xEE5A)
-NOP    = struct.pack('<H', 0x0000)
-
-def _disasm(b, base):
-    r = _ctx.disassemble(b, base_address=base, max_instructions=1)
-    i = r.instructions[0]; return i.mnem, i.body
-
 def selftest():
-    # reproduce real firmware instructions byte-for-byte
+    # reproduce real firmware instructions byte-for-byte (no disassembler needed)
     assert enc_jarl(0xED7E, 0xEA44) == bytes.fromhex("bfffc6fc"), "jarl enc wrong"
-    m, b = _disasm(enc_jarl(0xED7E, 0xEA44), 0xED7E)
-    assert m == 'jarl' and 'ea44' in b.replace('0x', ''), (m, b)
-    m, b = _disasm(enc_jr(0x4500, 0x5BE0), 0x4500)
-    assert m == 'jr', (m, b)
-    m, b = _disasm(JMP_LP, 0)
-    assert m == 'jmp', (m, b)
+    assert enc_jr(0x17D96, 0x17C54) == bytes.fromhex("bf07befe"), "jr enc wrong"
+    # disp must fit signed 22-bit for every hook we will install
+    for _, site, _, _, _ in HOOKS:
+        d = (SHIM_ORG - site)
+        assert -0x200000 <= d <= 0x1FFFFF, f"hook at {site:#x} out of jr/jarl range"
     return True
 
-# ---- build --------------------------------------------------------------------
-def build(src_phf, shim, out_phf, arm=False):
-    assert selftest(), "V850 encoder self-test failed — refusing to build"
-    p = PHF(src_phf)
+# ---- toolchain helpers --------------------------------------------------------
+def tool(name):
+    cand = os.path.join(TOOLCHAIN, name)
+    for ext in ("", ".exe"):
+        if os.path.isfile(cand + ext):
+            return cand + ext
+    found = shutil.which(name)
+    if found:
+        return found
+    sys.exit(f"ERROR: {name} not found in {TOOLCHAIN} or PATH (set --toolchain/$V850_BIN)")
 
-    # 1. inject shim into free flash
-    if shim is None:
-        shim = JMP_LP + NOP * 31        # 64-byte safe reserved block (returns if ever called)
-        note = "reserved 64-byte safe stub (assemble spp_can_bridge.s and pass --shim)"
-    else:
-        note = f"{len(shim)} bytes from {args.shim}"
-    assert SHIM_ORG + len(shim) < 0x3DF00, "shim overflows free flash"
+def assemble_shim():
+    """Assemble + link spp_can_bridge.s at SHIM_ORG; return (bytes, {sym:addr})."""
+    as_, ld, oc, nm = tool("v850-elf-as"), tool("v850-elf-ld"), \
+                      tool("v850-elf-objcopy"), tool("v850-elf-nm")
+    td = tempfile.mkdtemp(prefix="sppbuild_")
+    obj, elf, binf = (os.path.join(td, x) for x in ("spp.o", "spp.elf", "shim.bin"))
+    subprocess.run([as_, "-mv850e", "-o", obj, SHIM_ASM], check=True)
+    subprocess.run([ld, f"-Ttext={SHIM_ORG:#x}", "-e", "trampoline_rx",
+                    "-o", elf, obj], check=True)
+    subprocess.run([oc, "-O", "binary", elf, binf], check=True)
+    shim = open(binf, "rb").read()
+    syms = {}
+    out = subprocess.run([nm, elf], capture_output=True, text=True, check=True).stdout
+    for line in out.splitlines():
+        m = re.match(r"([0-9a-fA-F]+)\s+\S+\s+(\S+)", line)
+        if m:
+            syms[m.group(2)] = int(m.group(1), 16)
+    assert SHIM_ORG + len(shim) < FREE_END, "shim overflows free flash"
+    return shim, syms, elf
+
+# ---- build --------------------------------------------------------------------
+def build(src_phf, out_phf, arm=False):
+    assert selftest(), "V850 encoder self-test failed -- refusing to build"
+    shim, syms, elf = assemble_shim()
+    p = PHF(src_phf)
     p.add_region(SHIM_ORG, shim)
 
-    # 2. optional detour hooks (OFF by default — arming an unvalidated shim can brick)
     hooks = []
     if arm:
-        # overwrite 4 bytes at each hook site with a jump into the shim trampolines.
-        # trampoline addresses are exported by the assembled shim's map; here we assume
-        # the shim begins with: [0]=shim_init [+4]=trampoline_rx [+8]=trampoline_cantx
-        # (adjust offsets to your build's symbol map before arming).
-        tramp_rx     = SHIM_ORG + 0x04
-        tramp_cantx  = SHIM_ORG + 0x08
-        orig_rx   = bytes(p.mem[UART_RX_ISR+i] for i in range(4))
-        orig_can  = bytes(p.mem[CAN_EXTRACT+i] for i in range(4))
-        p.patch(UART_RX_ISR, enc_jr(UART_RX_ISR, tramp_rx))
-        p.patch(CAN_EXTRACT, enc_jr(CAN_EXTRACT, tramp_cantx))
-        hooks = [(UART_RX_ISR, orig_rx.hex(), tramp_rx),
-                 (CAN_EXTRACT, orig_can.hex(), tramp_cantx)]
+        for name, site, displaced, sym, kind in HOOKS:
+            have = bytes(p.mem.get(site + i, 0xFF) for i in range(4))
+            if have != displaced:
+                sys.exit(f"ABORT: hook '{name}' @ {site:#x} expected "
+                         f"{displaced.hex()} but image has {have.hex()} -- "
+                         f"wrong base image, refusing to arm")
+            if sym not in syms:
+                sys.exit(f"ABORT: shim symbol '{sym}' not found in map")
+            tgt = syms[sym]
+            enc = enc_jarl(site, tgt) if kind == "jarl" else enc_jr(site, tgt)
+            p.patch(site, enc)
+            hooks.append((name, site, displaced.hex(), sym, tgt, enc.hex()))
 
     fs = p.write(out_phf)
-    return fs, note, hooks
+    return fs, len(shim), syms, hooks, elf
 
-def verify(orig_phf, new_phf):
-    """phf2bin both, confirm only the intended addresses changed."""
-    import subprocess
-    here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    def tobin(phf, out):
-        subprocess.run([sys.executable, os.path.join(here, "phf/phf2bin.py"), phf, out],
-                       capture_output=True)
-        return open(out, 'rb').read()
-    a = tobin(orig_phf, "/tmp/_a.bin"); b = tobin(new_phf, "/tmp/_b.bin")
+# ---- verification -------------------------------------------------------------
+def phf2bin(phf, out):
+    subprocess.run([sys.executable, os.path.join(REPO, "phf", "phf2bin.py"), phf, out],
+                   capture_output=True)
+    return open(out, "rb").read()
+
+def verify(orig_phf, new_phf, shim_len, hooks):
+    td = tempfile.mkdtemp(prefix="sppverify_")
+    a = phf2bin(orig_phf, os.path.join(td, "a.bin"))
+    b = phf2bin(new_phf,  os.path.join(td, "b.bin"))
     diffs = [i for i in range(min(len(a), len(b))) if a[i] != b[i]]
-    return len(a), len(b), diffs
+    # expected changed set: shim region + 4 bytes per armed hook
+    expected = set(range(SHIM_ORG, SHIM_ORG + shim_len))
+    for _, site, _, _, _, _ in hooks:
+        expected |= set(range(site, site + 4))
+    unexpected = [d for d in diffs if d not in expected]
+    # objdump each armed hook site in the NEW image and confirm the jump target
+    od = tool("v850-elf-objdump")
+    hook_ok = []
+    for name, site, _, sym, tgt, _ in hooks:
+        sl = os.path.join(td, f"hook_{site:x}.bin")
+        open(sl, "wb").write(b[site:site + 4])
+        dis = subprocess.run([od, "-D", "-b", "binary", "-m", "v850e",
+                              f"--adjust-vma={site:#x}", sl],
+                             capture_output=True, text=True).stdout
+        ok = (f"{tgt:x}" in dis.replace("0x", "").lower()) and \
+             (("jarl" in dis) if name == "mainloop_drain" else ("jr" in dis))
+        hook_ok.append((name, ok, dis.strip().splitlines()[-1].strip() if dis.strip() else ""))
+    return len(a), len(b), diffs, unexpected, hook_ok
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
-    ap.add_argument('--src', default='bpm/8R29-14D511-AB.PHF')
-    ap.add_argument('--shim', help='assembled shim .bin (objcopy -O binary)')
+    ap.add_argument('--src', default=os.path.join(REPO, "bpm", "8R29-14D511-AB.PHF"))
     ap.add_argument('--arm', action='store_true', help='install detour hooks (default off)')
-    ap.add_argument('-o', '--out', default='bpm/SW-8R29-14D511-AB-SPPCAN.PHF')
+    ap.add_argument('--toolchain', help='dir containing v850-elf-* (else $V850_BIN)')
+    ap.add_argument('-o', '--out', default=os.path.join(REPO, "bpm", "8R29-14D511-JL-SPPCAN.PHF"))
     args = ap.parse_args()
-    shim = open(args.shim, 'rb').read() if args.shim else None
-    fs, note, hooks = build(args.src, shim, args.out, arm=args.arm)
-    print(f"self-test: PASS   shim: {note}")
-    print(f"wrote {args.out}   FILE CHECKSUM=0x{fs:04X}   hooks armed: {bool(hooks)}")
-    la, lb, diffs = verify(args.src, args.out)
+    if args.toolchain:
+        TOOLCHAIN = args.toolchain
+
+    fs, shim_len, syms, hooks, elf = build(args.src, args.out, arm=args.arm)
+    print(f"self-test: PASS")
+    print(f"shim: {shim_len} bytes @ {SHIM_ORG:#x} (ends {SHIM_ORG+shim_len:#x}, free to {FREE_END:#x})")
+    print(f"wrote {args.out}   FILE CHECKSUM=0x{fs:04X}   hooks armed: {len(hooks)}")
+    for name, site, orig, sym, tgt, enc in hooks:
+        print(f"  hook {name:<14} @ {site:#07x}: {orig} -> {enc}  ({sym} @ {tgt:#x})")
+
+    la, lb, diffs, unexpected, hook_ok = verify(args.src, args.out, shim_len, hooks)
     span = f"{min(diffs):#x}..{max(diffs):#x}" if diffs else "none"
     print(f"verify: orig={la}B new={lb}B  changed bytes: {len(diffs)} ({span})")
-    for site, orig, tgt in hooks:
-        print(f"  hook @ {site:#x}: was {orig} -> jr {tgt:#x}")
+    if unexpected:
+        print(f"  !! {len(unexpected)} UNEXPECTED changed bytes: "
+              f"{[hex(x) for x in unexpected[:8]]}")
+        sys.exit(1)
+    print(f"  OK: only the shim region + armed hook sites changed")
+    for name, ok, line in hook_ok:
+        print(f"  hook {name:<14} disasm: {'OK ' if ok else 'BAD'}  {line}")
+    if any(not ok for _, ok, _ in hook_ok):
+        sys.exit(1)
+    print("verify: PASS")
