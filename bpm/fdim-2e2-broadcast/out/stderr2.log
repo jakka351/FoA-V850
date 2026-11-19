@@ -1,0 +1,39 @@
+loaded 57 scheduled CAN frames
+module 0: FDIM-AC = 8R29-14D017-AC mono FDIM (S1D15721, CAN0)
+[FDIM-AC] stopped at cycle 160002962 (8000.1 ms), 122481731 insns, pc=018504 halted=0
+[FDIM-AC] irqs: 120:7993 170:799 2b0:1 2e0:57 2f0:158 320:31 370:1600
+CAN0 @03fec000: ctrl=0021 ie=0027 ints=0000 brp=09 btr=3508 masks: m1=1fffffff m2=1fffffff m3=1fffffff m4=1fffffff
+  mb00: std id=2FC mt=0(TX) ctrl=0008 dlc=8 MA0=1
+  mb01: std id=7A6 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb02: std id=406 mt=1(RX) ctrl=0009 dlc=8 MA0=1
+  mb03: std id=353 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb04: std id=311 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb05: std id=30F mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb06: std id=30D mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb07: std id=30B mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb08: std id=309 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb09: std id=304 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb10: std id=301 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb11: std id=2FE mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb12: std id=2F9 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb13: std id=2F5 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb14: std id=2F4 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb15: std id=2F2 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb16: std id=2EF mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb17: std id=2EC mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb18: std id=2E8 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb19: std id=2E6 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb20: std id=2E4 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb21: std id=2E1 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb22: std id=2DE mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb23: std id=2DB mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb24: std id=2D8 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb25: std id=2D4 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb26: std id=2CE mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb27: std id=2CC mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb28: std id=2CA mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb29: std id=2C0 mt=1(RX) ctrl=0009 dlc=0 MA0=1
+  mb30: std id=000 mt=2(RXmask) ctrl=0009 dlc=0 MA0=1
+  mb31: std id=000 mt=3(RXmask) ctrl=0009 dlc=0 MA0=1
+[FDIM-AC] EEPROM image updated: ee2.bin
+LCD: on=1 mode=4-gray start_line=0 lines=80(+icon) start_block=0 com_rev=1 adc_rev=1 input_dir=column reverse=0 all_on=0 osc=1/09 volume=6 v3=7 bias=0 power=07 temp_grad=5 mls=1b gray=00 power_save=0 writes=102504 cmds=1819961
